@@ -21,8 +21,8 @@ jobs:
         run: |
           sed -i 's|android:style/Theme.Material.Light.NoActionBar|Theme.AppCompat.Light.NoActionBar|' ApanamMedicoAndroid/app/src/main/res/values/styles.xml
 
-      - name: Fix mobile screen layout
-        run: |
+          - name: Apply final app icon
+           run: |
           python3 - <<'PY'
           path = "ApanamMedicoAndroid/app/src/main/java/com/apanammedico/app/MainActivity.java"
           text = open(path, encoding="utf-8").read()
