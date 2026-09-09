@@ -48,13 +48,11 @@ jobs:
           open(path, "w", encoding="utf-8").write(text)
           PY
 
-      - name: Create professional app icon
+           - name: Apply final app icon
         run: |
-          
           sudo rm -f /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update -qq
-          sudo apt-get install -y -qq imagemagick 
-          SOURCE="ApanamMedicoAndroid/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"
+          sudo apt-get install -y -qq imagemagick
 
           for ITEM in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192
           do
@@ -62,26 +60,12 @@ jobs:
             SIZE="${ITEM##*:}"
             OUTPUT="ApanamMedicoAndroid/app/src/main/res/mipmap-${FOLDER}"
 
-            convert -size ${SIZE}x${SIZE} \
-              radial-gradient:'#168DFF-#061F62' \
-              /tmp/background.png
-
-            convert "$SOURCE" \
-              -fuzz 15% -transparent white \
-              -trim \
-              -resize $((SIZE*82/100))x$((SIZE*82/100)) \
-              /tmp/logo.png
-
-            convert /tmp/background.png /tmp/logo.png \
-              -gravity center -composite \
-              -stroke '#FFD66B' -strokewidth 2 \
-              -fill none \
-              -draw "roundrectangle 1,1,$((SIZE-2)),$((SIZE-2)),$((SIZE/6)),$((SIZE/6))" \
+            convert app-icon.png \
+              -resize ${SIZE}x${SIZE}! \
               "$OUTPUT/ic_launcher.png"
 
             cp "$OUTPUT/ic_launcher.png" "$OUTPUT/ic_launcher_round.png"
           done
-
       - name: Fix duplicate Kotlin libraries
         run: |
           echo "configurations.configureEach { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'; exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8' }" >> ApanamMedicoAndroid/app/build.gradle
