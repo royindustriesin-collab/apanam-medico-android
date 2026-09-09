@@ -1,0 +1,42 @@
+name: Build Apanam Medico APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+
+      - name: Extract Android project
+        run: unzip -q Apanam-Medico-Android-v1-source.zip
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+
+      - name: Build APK
+        working-directory: ApanamMedicoAndroid
+        run: gradle assembleDebug
+
+      - name: Prepare APK
+        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v1.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Apanam-Medico-Android-App
+          path: Apanam-Medico-v1.apk
