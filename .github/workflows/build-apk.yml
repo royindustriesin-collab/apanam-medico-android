@@ -44,3 +44,6 @@ jobs:
         with:
           name: Apanam-Medico-Android-App
           path: Apanam-Medico-v1.apk
+      - name: Fix Android theme
+        run: |
+          sed -i 's|android:style/Theme.Material.Light.NoActionBar|Theme.AppCompat.Light.NoActionBar|' ApanamMedicoAndroid/app/src/main/res/values/styles.xml
