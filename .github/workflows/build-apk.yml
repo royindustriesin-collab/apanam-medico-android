@@ -48,8 +48,8 @@ jobs:
           open(path, "w", encoding="utf-8").write(text)
           PY
 
-          - name: Apply final app icon
-          run: |
+              - name: Apply final app icon
+            run: |
           sudo rm -f /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update -qq
           sudo apt-get install -y -qq imagemagick
