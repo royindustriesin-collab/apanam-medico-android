@@ -1,4 +1,4 @@
-name: Build Apanam Medico APK v3
+name: Build Apanam Medico APK v4
 
 on:
   workflow_dispatch:
@@ -21,8 +21,8 @@ jobs:
         run: |
           sed -i 's|android:style/Theme.Material.Light.NoActionBar|Theme.AppCompat.Light.NoActionBar|' ApanamMedicoAndroid/app/src/main/res/values/styles.xml
 
-           - name: Apply final app icon
-           run: |
+      - name: Fix mobile screen layout
+        run: |
           python3 - <<'PY'
           path = "ApanamMedicoAndroid/app/src/main/java/com/apanammedico/app/MainActivity.java"
           text = open(path, encoding="utf-8").read()
@@ -48,8 +48,8 @@ jobs:
           open(path, "w", encoding="utf-8").write(text)
           PY
 
-              - name: Apply final app icon
-            run: |
+      - name: Apply final app icon
+        run: |
           sudo rm -f /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update -qq
           sudo apt-get install -y -qq imagemagick
@@ -66,6 +66,7 @@ jobs:
 
             cp "$OUTPUT/ic_launcher.png" "$OUTPUT/ic_launcher_round.png"
           done
+
       - name: Fix duplicate Kotlin libraries
         run: |
           echo "configurations.configureEach { exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'; exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8' }" >> ApanamMedicoAndroid/app/build.gradle
@@ -86,10 +87,10 @@ jobs:
         run: gradle assembleDebug
 
       - name: Prepare APK
-        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v3.apk
+        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v4.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Apanam-Medico-Android-App-v3
-          path: Apanam-Medico-v3.apk
+          name: Apanam-Medico-Android-App-v4
+          path: Apanam-Medico-v4.apk
