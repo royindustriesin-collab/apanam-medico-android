@@ -48,7 +48,7 @@ jobs:
           open(path, "w", encoding="utf-8").write(text)
           PY
 
-        - name: Enable microphone in Android WebView
+    - name: Enable microphone in Android WebView
         run: |
           python3 - <<'PY'
           manifest_path = "ApanamMedicoAndroid/app/src/main/AndroidManifest.xml"
