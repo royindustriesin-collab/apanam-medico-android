@@ -1,4 +1,4 @@
-name: Build Apanam Medico APK v5
+name: Build Apanam Medico APK v6
 
 on:
   workflow_dispatch:
@@ -56,8 +56,9 @@ jobs:
 
           internet_permission = '<uses-permission android:name="android.permission.INTERNET" />'
           microphone_permission = '<uses-permission android:name="android.permission.RECORD_AUDIO" />'
-audio_settings_permission = '<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />'
-                    if microphone_permission not in manifest:
+          audio_settings_permission = '<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />'
+
+          if microphone_permission not in manifest:
               manifest = manifest.replace(
                   internet_permission,
                   internet_permission + "\n    " + microphone_permission
@@ -154,10 +155,10 @@ audio_settings_permission = '<uses-permission android:name="android.permission.M
         run: gradle assembleDebug
 
       - name: Prepare APK
-        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v5.apk
+        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v6.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Apanam-Medico-Android-App-v5
-          path: Apanam-Medico-v5.apk
+          name: Apanam-Medico-Android-App-v6
+          path: Apanam-Medico-v6.apk
