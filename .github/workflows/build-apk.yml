@@ -56,11 +56,17 @@ jobs:
 
           internet_permission = '<uses-permission android:name="android.permission.INTERNET" />'
           microphone_permission = '<uses-permission android:name="android.permission.RECORD_AUDIO" />'
-
-          if microphone_permission not in manifest:
+audio_settings_permission = '<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />'
+                    if microphone_permission not in manifest:
               manifest = manifest.replace(
                   internet_permission,
                   internet_permission + "\n    " + microphone_permission
+              )
+
+          if audio_settings_permission not in manifest:
+              manifest = manifest.replace(
+                  microphone_permission,
+                  microphone_permission + "\n    " + audio_settings_permission
               )
 
           open(manifest_path, "w", encoding="utf-8").write(manifest)
