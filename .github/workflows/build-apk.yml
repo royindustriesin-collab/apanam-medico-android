@@ -1,4 +1,4 @@
-name: Build Apanam Medico APK v4
+name: Build Apanam Medico APK v5
 
 on:
   workflow_dispatch:
@@ -48,62 +48,67 @@ jobs:
           open(path, "w", encoding="utf-8").write(text)
           PY
 
-    - name: Enable microphone in Android WebView
+      - name: Enable microphone in Android WebView
         run: |
           python3 - <<'PY'
           manifest_path = "ApanamMedicoAndroid/app/src/main/AndroidManifest.xml"
           manifest = open(manifest_path, encoding="utf-8").read()
 
-          permission = '<uses-permission android:name="android.permission.RECORD_AUDIO" />'
+          internet_permission = '<uses-permission android:name="android.permission.INTERNET" />'
+          microphone_permission = '<uses-permission android:name="android.permission.RECORD_AUDIO" />'
 
-          if permission not in manifest:
-              pos = manifest.find(">")
-              manifest = manifest[:pos + 1] + "\n    " + permission + manifest[pos + 1:]
+          if microphone_permission not in manifest:
+              manifest = manifest.replace(
+                  internet_permission,
+                  internet_permission + "\n    " + microphone_permission
+              )
 
           open(manifest_path, "w", encoding="utf-8").write(manifest)
 
           java_path = "ApanamMedicoAndroid/app/src/main/java/com/apanammedico/app/MainActivity.java"
           text = open(java_path, encoding="utf-8").read()
 
-          marker = "s.setJavaScriptEnabled(true);"
+          javascript_marker = 's.setJavaScriptEnabled(true);'
+          runtime_permission = '\n'.join([
+              's.setJavaScriptEnabled(true);',
+              '        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M &&',
+              '                checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)',
+              '                        != android.content.pm.PackageManager.PERMISSION_GRANTED) {',
+              '            requestPermissions(',
+              '                    new String[]{android.Manifest.permission.RECORD_AUDIO},',
+              '                    2001',
+              '            );',
+              '        }'
+          ])
 
-          mic_code = '''
-                  if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M &&
-                          checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
-                                  != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                      requestPermissions(
-                              new String[]{android.Manifest.permission.RECORD_AUDIO},
-                              2001
-                      );
-                  }
+          text = text.replace(javascript_marker, runtime_permission)
 
-                  webView.setWebChromeClient(new android.webkit.WebChromeClient() {
-                      @Override
-                      public void onPermissionRequest(
-                              final android.webkit.PermissionRequest request
-                      ) {
-                          MainActivity.this.runOnUiThread(() -> {
-                              for (String resource : request.getResources()) {
-                                  if (android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE
-                                          .equals(resource)) {
-                                      request.grant(new String[]{
-                                          android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE
-                                      });
-                                      return;
-                                  }
-                              }
-                              request.deny();
-                          });
-                      }
-                  });
-          '''
+          chrome_marker = '\n'.join([
+              'webView.setWebChromeClient(new WebChromeClient() {',
+              '            @Override public void onProgressChanged'
+          ])
 
-          if "RESOURCE_AUDIO_CAPTURE" not in text:
-              text = text.replace(marker, marker + mic_code)
+          chrome_replacement = '\n'.join([
+              'webView.setWebChromeClient(new WebChromeClient() {',
+              '            @Override public void onPermissionRequest(final android.webkit.PermissionRequest request) {',
+              '                runOnUiThread(() -> {',
+              '                    for (String resource : request.getResources()) {',
+              '                        if (android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)) {',
+              '                            request.grant(new String[]{android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE});',
+              '                            return;',
+              '                        }',
+              '                    }',
+              '                    request.deny();',
+              '                });',
+              '            }',
+              '            @Override public void onProgressChanged'
+          ])
+
+          text = text.replace(chrome_marker, chrome_replacement)
 
           open(java_path, "w", encoding="utf-8").write(text)
           PY
-      
+
       - name: Apply final app icon
         run: |
           sudo rm -f /etc/apt/sources.list.d/google-chrome.list
@@ -143,10 +148,10 @@ jobs:
         run: gradle assembleDebug
 
       - name: Prepare APK
-        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v4.apk
+        run: cp ApanamMedicoAndroid/app/build/outputs/apk/debug/app-debug.apk Apanam-Medico-v5.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Apanam-Medico-Android-App-v4
-          path: Apanam-Medico-v4.apk
+          name: Apanam-Medico-Android-App-v5
+          path: Apanam-Medico-v5.apk
