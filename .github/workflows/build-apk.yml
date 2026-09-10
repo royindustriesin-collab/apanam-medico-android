@@ -60,7 +60,7 @@ jobs:
             SIZE="${ITEM##*:}"
             OUTPUT="ApanamMedicoAndroid/app/src/main/res/mipmap-${FOLDER}"
 
-            convert app-icon.png \
+            convert app-icon.png2.png \
               -resize ${SIZE}x${SIZE}! \
               "$OUTPUT/ic_launcher.png"
 
